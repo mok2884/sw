@@ -1,1 +1,16 @@
+{
+  "name": "Time Pro",
+  "short_name": "TimePro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#B2DFDB",
+  "theme_color": "#B2DFDB",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2991/2991148.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
 
