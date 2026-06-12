@@ -330,6 +330,28 @@ font-size: 2.2rem;
             window.addEventListener(upEvent, handleRelease);
         }
 
+                let resetTimer = null; // 長押し用のタイマーだよ
+
+        function largeScreenPressStart(e) {
+            if (e.target.id === 'large-reset-btn' || e.target.closest('.large-lever-positioner')) {
+                // リセットボタンを押し込んだら、0.4秒（400ミリ秒）のカウントダウンスタート！
+                resetTimer = setTimeout(() => {
+                    executeLargeReset();
+                }, 400);
+                
+                // 指を離すか画面外に出たら長押しをキャンセルするよ
+                const cancelReset = () => { clearTimeout(resetTimer); window.removeEventListener('mouseup', cancelReset); window.removeEventListener('touchend', cancelReset); };
+                window.addEventListener('mouseup', cancelReset);
+                window.addEventListener('touchend', cancelReset);
+                return;
+            }
+            
+            largeOverlay.classList.add('active-press');
+            const upEvent = e.type === 'touchstart' ? 'touchend' : 'mouseup';
+            const handleRelease = () => { largeOverlay.classList.remove('active-press'); largeScreenReleased(); window.removeEventListener(upEvent, handleRelease); };
+            window.addEventListener(upEvent, handleRelease);
+        }
+
         function largeScreenReleased() {
             if (!swRunning) {
                 swRunning = true;
@@ -339,11 +361,25 @@ font-size: 2.2rem;
             }
         }
 
-        function largeResetTapped(e) {
-            if (e) e.stopPropagation(); 
+        // ここが新しく作った「深い青色に光ってリセットする」魔法の仕掛けだよ！
+        function executeLargeReset() {
             if (swRunning) { swRunning = false; clearInterval(swInterval); }
-            swElapsedMs = 0; updateDisplay();
+            swElapsedMs = 0;
+            updateDisplay();
+
+            // 数字の色を「深いデジタルブルー」に変えるよ！
+            const digits = largeMainTime.querySelectorAll('.digit');
+            digits.forEach(d => d.style.color = '#0055ff');
+
+            // 0.2秒（200ミリ秒）だけ青く光らせたら、元のネオンレッドに戻すよ
+            setTimeout(() => {
+                digits.forEach(d => d.style.color = '#ff4500');
+            }, 200);
         }
+
+        // 誤作動を防ぐために元のタップ関数は空っぽにしておくね
+        function largeResetTapped(e) { if (e) e.stopPropagation(); }
+
 
         function lcdTapped() { handleStartStop(); }
 
