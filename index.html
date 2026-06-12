@@ -369,12 +369,12 @@ font-size: 2.2rem;
 
             // 数字の色を「深いデジタルブルー」に変えるよ！
             const digits = largeMainTime.querySelectorAll('.digit');
-            digits.forEach(d => d.style.color = '#0055ff');
+            digits.forEach(d => d.style.color = '#80CBC4');
 
             // 0.2秒（200ミリ秒）だけ青く光らせたら、元のネオンレッドに戻すよ
             setTimeout(() => {
                 digits.forEach(d => d.style.color = '#ff4500');
-            }, 200);
+            }, 400);
         }
 
         // 誤作動を防ぐために元のタップ関数は空っぽにしておくね
