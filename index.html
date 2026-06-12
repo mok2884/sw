@@ -362,39 +362,38 @@ font-size: 2.2rem;
         }
 
         // ここが新しく作った「深い青色に光ってリセットする」魔法の仕掛けだよ！
-                function executeLargeReset() {
+                       function executeLargeReset() {
             if (swRunning) { swRunning = false; clearInterval(swInterval); }
             swElapsedMs = 0;
             updateDisplay();
 
-            //リセットした瞬間の色（選んだミントグリーンのコードにしてね！）
+            //  リセットした瞬間の色（お好みのミントグリーンに調整してね！）
             const mintColor = '#4DB6AC'; 
 
-            // 数字の色を変えるよ
+            // 数字の色をミントに変えるよ
             const digits = largeMainTime.querySelectorAll('.digit');
             digits.forEach(d => d.style.color = mintColor);
 
-            // 【追加】外枠の線の色もミントに変えるよ！
+            // 外枠の線の色もミントに変えるよ
             largeMainTime.style.borderColor = mintColor;
 
-            // 【追加】下の「REAL TIME / TIMER」の文字の色もミントに変えるよ！
-            const subText = largeOverlay.querySelector('div[style*="font-size: 14px"]');
+            // 下の文字の色もミントに変えるよ
+            const subText = document.getElementById('large-mode-label');
             if (subText) subText.style.color = mintColor;
 
 
-            //ここで元に戻る時間を決めるよ（400＝0.4秒、500＝0.5秒）
+            //  時間が来たら、元の色に100%自動で戻すよ！
             setTimeout(() => {
                 // 数字をいつものネオンレッドに戻すよ
                 digits.forEach(d => d.style.color = '#ff4500');
 
-                // 外枠の色も元の渋いダークグレー（#333333）に戻すよ！
-                largeMainTime.style.borderColor = '#333333';
+                // 【ここがポイント！】『空っぽ』にすると、CSSに書いてある元の色に自動で戻るよ！
+                largeMainTime.style.borderColor = '';
+                if (subText) subText.style.color = '';
 
-                // 下の文字の色も元の薄いグレー（rgba(255,255,255,0.4)）に戻すよ！
-                if (subText) subText.style.color = 'rgba(255, 255, 255, 0.4)';
-
-            }, 400); // ← ここをお好みの長さに調整してね！
+            }, 400); // ← ここでミント色に光る長さを調整してね！
         }
+
 
 
         // 誤作動を防ぐために元のタップ関数は空っぽにしておくね
