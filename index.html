@@ -374,8 +374,10 @@ font-size: 2.2rem;
             const digits = largeMainTime.querySelectorAll('.digit');
             digits.forEach(d => {
                 d.style.color = mintColor;
-                // 🌟 ここ！文字の後ろにふわぁっと広がるネオンのボカシ（影）を足しているよ！
-                d.style.textShadow = `0 0 4px ${mintColor}, 0 0 8px ${mintColor}`;
+                
+                // ✨ 範囲は広いまま、光の強さを「半分（0.5）」に透けさせてみる
+d.style.textShadow = `0 0 8px rgba(255, 170, 68, 0.5), 0 0 16px rgba(255, 170, 68, 0.3)`;
+
             });
 
             // 外枠の線の色も変えて、枠も一緒にほんのり光らせちゃう！
