@@ -366,19 +366,19 @@ font-size: 2.2rem;
             if (swRunning) { swRunning = false; clearInterval(swInterval); }
             swElapsedMs = 0;
             updateDisplay();
+                        
 
-            // ✨ 【お好みの色！】リセットした瞬間の発光色（例：白っぽく明るいネオンオレンジ！）
-            const mintColor = '#80CCA2'; 
+                            // ✨ 提案1：深みとコクのある鮮やかなミントグリーン！
+            const mintColor = '#3DBB86'; 
 
-            // 数字の色を変えて、さらに「京アニ風の光の滲み」を一瞬だけ上乗せするよ！
             const digits = largeMainTime.querySelectorAll('.digit');
             digits.forEach(d => {
                 d.style.color = mintColor;
                 
-                // ✨ 範囲は広いまま、光の強さを「半分（0.5）」に透けさせてみる
-d.style.textShadow = `0 0 16px rgba(255, 170, 68, 0.5), 0 0 25px rgba(255, 170, 68, 0.3)`;
-
+                // 🌟 ボカシの色も、mintColorに合わせてしっかり「緑の光」に直したよ！
+                d.style.textShadow = `0 0 12px rgba(61, 187, 134, 0.6), 0 0 25px rgba(61, 187, 134, 0.3)`;
             });
+
 
             // 外枠の線の色も変えて、枠も一緒にほんのり光らせちゃう！
             largeMainTime.style.borderColor = mintColor;
