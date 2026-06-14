@@ -361,39 +361,47 @@ font-size: 2.2rem;
             }
         }
 
-        // ここが新しく作った「深い青色に光ってリセットする」魔法の仕掛けだよ！
-                       function executeLargeReset() {
+           // 🎬 ここが新しく作った「リセットした瞬間に光を滲ませる」魔法の仕掛けだよ！
+        function executeLargeReset() {
             if (swRunning) { swRunning = false; clearInterval(swInterval); }
             swElapsedMs = 0;
             updateDisplay();
 
-            //  リセットした瞬間の色（お好みのミントグリーンに調整してね！）
+            // ✨ 【お好みの色！】リセットした瞬間の発光色（例：白っぽく明るいネオンオレンジ！）
             const mintColor = '#FFAA44'; 
 
-            // 数字の色をミントに変えるよ
+            // 数字の色を変えて、さらに「京アニ風の光の滲み」を一瞬だけ上乗せするよ！
             const digits = largeMainTime.querySelectorAll('.digit');
-            digits.forEach(d => d.style.color = mintColor);
+            digits.forEach(d => {
+                d.style.color = mintColor;
+                // 🌟 ここ！文字の後ろにふわぁっと広がるネオンのボカシ（影）を足しているよ！
+                d.style.textShadow = `0 0 12px ${mintColor}, 0 0 25px ${mintColor}`;
+            });
 
-            // 外枠の線の色もミントに変えるよ
+            // 外枠の線の色も変えて、枠も一緒にほんのり光らせちゃう！
             largeMainTime.style.borderColor = mintColor;
+            largeMainTime.style.boxShadow = `0 0 15px ${mintColor}`;
 
-            // 下の文字の色もミントに変えるよ
-            const subText = document.getElementById('large-mode-label');
+            // 下の文字の色も変えるよ（id名が間違ってても動くように安全策にしてあるよ！）
+            const subText = document.getElementById('large-sub-label') || document.getElementById('large-mode-label');
             if (subText) subText.style.color = mintColor;
 
 
-            //  時間が来たら、元の色に100%自動で戻すよ！
+            // ⏳ 0.4秒（400ミリ秒）経ったら、いつものパキッとした画面に自動で戻すよ！
             setTimeout(() => {
-                // 数字をいつものネオンレッドに戻すよ
-                digits.forEach(d => d.style.color = '#ff4500');
+                digits.forEach(d => {
+                    d.style.color = '#ff4500'; // いつものネオンレッドに戻す
+                    d.style.textShadow = '';   // 🌟 滲み（ボカシ）を『空っぽ』にして綺麗に消すよ！
+                });
 
-                // 【ここがポイント！】『空っぽ』にすると、CSSに書いてある元の色に自動で戻るよ！
+                // 枠線や下の文字も、CSSに書いてある元の状態にスッと戻します
                 largeMainTime.style.borderColor = '';
+                largeMainTime.style.boxShadow = '';
                 if (subText) subText.style.color = '';
-
-            }, 400); // ← ここでミント色に光る長さを調整してね！
+            }, 400); // 👈 ここの「400」を「600」とかにすると、ボカシの余韻が長くなるよ！
         }
 
+    
 
 
         // 誤作動を防ぐために元のタップ関数は空っぽにしておくね
