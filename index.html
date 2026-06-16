@@ -143,10 +143,15 @@
         }
         #large-sw-overlay.active-press { background-color: #1a1a1a; transform: scale(0.97);}
 
-        #large-time-container {
-            transform: rotate(90deg); transform-origin: center center;
-            white-space: nowrap; transition: transform 0.06s ease-out;
-        }
+       #large-time-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg); 
+    transform-origin: center center;
+    white-space: nowrap; 
+    transition: transform 0.06s ease-out;
+}
         #large-main-time {
             display: flex; align-items: center; justify-content: center;
             font-size: 11rem; font-family: 'DS-Digital', monospace;
@@ -599,6 +604,43 @@ font-size: 2.2rem;
         // ⏳ ページを読み込んだ時と、画面サイズが変わった時に、上の計算を自動で走らせるお守りだよ
         window.addEventListener('load', autoScaleConsole);
         window.addEventListener('resize', autoScaleConsole);
+
+// 🔄 巨大ストップウォッチ（90度回転）を画面に収めるあべこべ関数
+        function autoScaleLargeTimer() {
+            // 1. 大画面タイマー（#large-time-container）の元の「横幅」と「縦幅」の基準サイズ
+            // 💡 もしこれでも全体のサイズ感がズレる時は、この数値を上げ下げしてみてね！
+            const baseWidth = 800;  
+            const baseHeight = 450; 
+
+            // 2. いまのスマホ画面の「横幅」と「高さ」を測るよ
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            // 🌟【ここがあべこべ！】90度回っているから、画面の縦横を入れ替えて限界の壁を作ります！
+            // 🛠️ この「1.00」と「0.95」の数字を弄って、あなたの手でいい感じの縮尺に決めてね！
+            const targetWidth = windowHeight * 0.80; // タイマーの横幅は、スマホの「縦の長さ」にぶつかる！
+            const targetHeight = windowWidth * 0.95; // タイマーの縦幅は、スマホの「横の幅」にぶつかる！
+
+            // 3. 縦横比を崩さないための倍率計算
+            const scaleX = targetWidth / baseWidth;
+            const scaleY = targetHeight / baseHeight;
+
+            // 4. ガードマン（Math.min）が、キツい方の倍率を1つだけ自動で選ぶよ！
+            let finalScale = Math.min(scaleX, scaleY);
+
+            // ❗ 巨大化ストッパー（最大でも1倍で止める安全弁だよ）
+            finalScale = Math.min(finalScale, 1.0);
+
+            // 5. 大画面コンテナに倍率を適用するよ！
+            const largeContainer = document.getElementById('large-time-container');
+            if (largeContainer) {
+                largeContainer.style.transform = `translate(-50%, -50%) rotate(90deg) scale(${finalScale})`;
+            }
+        }
+
+        // ⏳ ページを読み込んだ時と、画面サイズが変わった時に、上のあべこべ計算を自動で走らせるよ
+        window.addEventListener('load', autoScaleLargeTimer);
+        window.addEventListener('resize', autoScaleLargeTimer);
         setMode('CALC');
 
         // WakeLock等周辺ロジック維持
