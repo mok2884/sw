@@ -293,6 +293,7 @@ font-size: 2.2rem;
         function setMode(m) {
             currentMode = m;
             if (m === 'LARGE') {
+                document.body.style.background = '#000000';
                 normalConsole.classList.add('hidden');
                 largeOverlay.classList.remove('hidden');
                 modeSelector.classList.add('large-dark-lever');
@@ -302,6 +303,7 @@ font-size: 2.2rem;
                     clearModeInput('SW');
                 }
             } else {
+                document.body.style.background = '';
                 normalConsole.classList.remove('hidden');
                 largeOverlay.classList.add('hidden');
                 modeSelector.classList.remove('large-dark-lever');
