@@ -8,6 +8,7 @@
     <link href="https://fonts.cdnfonts.com/css/ds-digital" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#B2DFDB">
 
     <style>
         :root {
@@ -24,6 +25,7 @@
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden; position: fixed;
+touch-action: manipulation;
         }
 
         body { 
@@ -147,6 +149,7 @@
             background-color: #000000; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-sizing: border-box; cursor: pointer; transition: background-color 0.08s ease;
+touch-action: manipulation;
         }
         #large-sw-overlay.active-press { background-color: #1a1a1a; transform: scale(0.97);}
 
@@ -302,6 +305,7 @@ font-size: 2.2rem;
             currentMode = m;
             if (m === 'LARGE') {
 document.getElementById('bg-board').style.background = '#000000';
+document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
                 document.body.style.background = '#000000';
                 normalConsole.classList.add('hidden');
                 largeOverlay.classList.remove('hidden');
@@ -313,6 +317,7 @@ document.getElementById('bg-board').style.background = '#000000';
                 }
             } else {
 document.getElementById('bg-board').style.background = '';
+document.querySelector('meta[name="theme-color"]').setAttribute('content', '#B2DFDB');
                 document.body.style.background = '';
                 normalConsole.classList.remove('hidden');
                 largeOverlay.classList.add('hidden');
