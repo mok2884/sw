@@ -569,7 +569,7 @@ font-size: 2.2rem;
         // 📱 計算機コンソールを画面の90%に自動で収める関数
         function autoScaleConsole() {
             // 1. 計算機コンソール（.console）の元の最大幅（480px）と、大体の高さを設定
-            const baseWidth = 480;
+            const baseWidth = 476;
             const baseHeight = 840; // 液晶とボタンが並んだときのおおよその高さだよ
 
             // 2. いまのスマホ画面の、マックスの「横幅」と「高さ」を測るよ
@@ -577,7 +577,7 @@ font-size: 2.2rem;
             const windowHeight = window.innerHeight;
 
             // 3. 画面の90%に収めたいから、ターゲットの大きさを計算！
-            const targetWidth = windowWidth * 0.97;
+            const targetWidth = windowWidth * 0.99;
             const targetHeight = windowHeight * 0.97;
 
             // 4. 縦と横、どっちがどれくらいはみ出るかの倍率（スケール）を出すよ
