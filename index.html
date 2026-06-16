@@ -570,15 +570,15 @@ font-size: 2.2rem;
         function autoScaleConsole() {
             // 1. 計算機コンソール（.console）の元の最大幅（480px）と、大体の高さを設定
             const baseWidth = 480;
-            const baseHeight = 800; // 液晶とボタンが並んだときのおおよその高さだよ
+            const baseHeight = 840; // 液晶とボタンが並んだときのおおよその高さだよ
 
             // 2. いまのスマホ画面の、マックスの「横幅」と「高さ」を測るよ
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
 
             // 3. 画面の90%に収めたいから、ターゲットの大きさを計算！
-            const targetWidth = windowWidth * 0.90;
-            const targetHeight = windowHeight * 0.90;
+            const targetWidth = windowWidth * 0.97;
+            const targetHeight = windowHeight * 0.97;
 
             // 4. 縦と横、どっちがどれくらいはみ出るかの倍率（スケール）を出すよ
             const scaleX = targetWidth / baseWidth;
