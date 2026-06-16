@@ -37,7 +37,7 @@
             
         }
 
-        .console { width: 95%; max-width: 480px; padding: 25px; display: flex; flex-direction: column; gap: 25px; transition: opacity 0.2s; }
+        .console { width: 95%; max-width: 480px; padding: 25px; display: flex; flex-direction: column; gap: 25px; transition: opacity 0.2s; transform-origin: center center;}
         .top-row { display: grid; grid-template-columns: 80px 1fr 100px; align-items: flex-end; gap: 18px; }
         
         #mode-selector { 
@@ -566,6 +566,39 @@ font-size: 2.2rem;
         }
         setInterval(updateRealTime, 1000);
         updateRealTime();
+        // 📱 計算機コンソールを画面の90%に自動で収める関数
+        function autoScaleConsole() {
+            // 1. 計算機コンソール（.console）の元の最大幅（480px）と、大体の高さを設定
+            const baseWidth = 480;
+            const baseHeight = 800; // 液晶とボタンが並んだときのおおよその高さだよ
+
+            // 2. いまのスマホ画面の、マックスの「横幅」と「高さ」を測るよ
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            // 3. 画面の90%に収めたいから、ターゲットの大きさを計算！
+            const targetWidth = windowWidth * 0.90;
+            const targetHeight = windowHeight * 0.90;
+
+            // 4. 縦と横、どっちがどれくらいはみ出るかの倍率（スケール）を出すよ
+            const scaleX = targetWidth / baseWidth;
+            const scaleY = targetHeight / baseHeight;
+
+            // 5. 小さい方の倍率（より縮めないとはみ出ちゃう方）を自動で選ぶよ！
+            let finalScale = Math.min(scaleX, scaleY);
+
+            // ❗画面が大きすぎるときに巨大化しないよう、最大でも1倍（100%）でストップ！
+            finalScale = Math.min(finalScale, 1.0);
+
+            // 6. 計算機の固まり（normalConsole）に、計算した倍率をパッと適用するよ！
+            if (normalConsole) {
+                normalConsole.style.transform = `scale(${finalScale})`;
+            }
+        }
+
+        // ⏳ ページを読み込んだ時と、画面サイズが変わった時に、上の計算を自動で走らせるお守りだよ
+        window.addEventListener('load', autoScaleConsole);
+        window.addEventListener('resize', autoScaleConsole);
         setMode('CALC');
 
         // WakeLock等周辺ロジック維持
