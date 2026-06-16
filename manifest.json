@@ -1,14 +1,14 @@
 {
-  "name": "Time Pro",
-  "short_name": "TimePro",
+  "name": "SoundP",
+  "short_name": "SoundP",
   "start_url": "./index.html",
   "display": "fullscreen",
   "background_color": "#B2DFDB",
   "theme_color": "#B2DFDB",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2991/2991148.png",
-      "sizes": "192x192",
+      "src": "./soundp.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
