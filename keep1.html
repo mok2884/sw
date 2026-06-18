@@ -512,22 +512,20 @@ function largeScreenPressStart(e) {
             }
         }
 
-        function pressNum(n) {
-            if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
-            if (currentMode === 'CALC') {
-                if (isDetermined) { memorySeconds = 0; clearModeInput('CALC'); isDetermined = false; }
-                if (isWaitingNewInput) { clearModeInput('CALC'); isWaitingNewInput = false; }
-            }
-            let target = inputs[currentMode];
-            let activeStr = (target.h + target.m.padStart(target.h?2:0,'0') + target.s.padStart((target.m||target.h)?2:0,'0'));
-            if (activeStr.length >= 6) return;
-            let nextActive = (activeStr === "0" ? "" : activeStr) + n;
-            target.s = nextActive.slice(-2);
-            target.m = nextActive.length > 2 ? nextActive.slice(-4, -2) : "";
-            target.h = nextActive.length > 4 ? nextActive.slice(-6, -4) : "";
-            updateDisplay();
-        }
+       function pressNum(n) {
+    if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
 
+    if (currentMode === 'CALC') {
+        if (isDetermined) { memorySeconds = 0; clearModeInput('CALC'); isDetermined = false; }
+        if (isWaitingNewInput) { clearModeInput('CALC'); isWaitingNewInput = false; }
+    }
+
+    let target = inputs[currentMode];
+
+    target.s = (target.s || "") + n;
+
+    updateDisplay();
+}
         function formatInputToDisplay(mode) {
             let target = inputs[mode];
             if (!target.h && !target.m && !target.s) return "";
@@ -591,14 +589,48 @@ function largeScreenPressStart(e) {
         }
 
         function confirmUnit(unit) {
-            if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
-            if (unit === 'h') { 
-                let v = getSecondsFromInput(currentMode); 
-                inputs[currentMode].h = String(v); 
-                inputs[currentMode].m = inputs[currentMode].s = ""; 
-            }
-            updateDisplay();
-        }
+    if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
+
+    let target = inputs[currentMode];
+
+    if (unit === 'h') {
+        target.h = target.s || "0";
+        target.m = "";
+        target.s = "";
+    }
+
+    if (unit === 'm') {
+        target.m = target.s || "0";
+        target.s = "";
+    }
+
+    updateDisplay();
+
+    // ここから追加（正規化）
+    let h = parseInt(target.h || 0);
+    let m = parseInt(target.m || 0);
+    let s = parseInt(target.s || 0);
+
+    if (s >= 60) {
+        m += Math.floor(s / 60);
+        s = s % 60;
+    }
+
+    if (m >= 60) {
+        h += Math.floor(m / 60);
+        m = m % 60;
+    }
+
+    target.h = h ? String(h) : "";
+    target.m = m ? String(m) : "";
+    target.s = s ? String(s) : "";
+clearModeInput(currentMode);
+
+inputs[currentMode].h = target.h;
+inputs[currentMode].m = target.m;
+inputs[currentMode].s = target.s;
+    updateDisplay();
+}
 
         function allClear() {
             if (currentMode === 'CALC') { memorySeconds = 0; currentOp = null; isDetermined = false; isWaitingNewInput = false; document.getElementById('op-sign').innerText = ""; }
