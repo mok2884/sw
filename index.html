@@ -471,14 +471,24 @@ function largeScreenPressStart(e) {
             updateDisplay();
         }
 
-        function updateDisplay() {
-            let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
-            tcDisplay.innerText = formatFullTime(totalTcSec);
-            mainDisplay.classList.remove('running-text');
+        function updateDisplay() {     
+let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
 
-            if (currentMode === 'TC' && !tcRunning && (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s)) {
-                tcDisplay.innerText = formatFullTime(getSecondsFromInput('TC'));
-            }
+    // ① まずリセット
+    mainDisplay.style.color = "";
+    tcDisplay.style.color = "";
+
+    tcDisplay.innerText = formatFullTime(totalTcSec);
+
+    // ② そのあと色付け
+    
+
+    mainDisplay.classList.remove('running-text');
+
+           if (currentMode === 'TC' && !tcRunning && (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s)) {
+    tcDisplay.innerText = formatFullTime(getSecondsFromInput('TC'));
+    tcDisplay.style.color = "#C9A227";
+}
 
             if (currentMode === 'LARGE') {
                 const t = formatColonLargeSW(swElapsedMs);
@@ -487,58 +497,116 @@ function largeScreenPressStart(e) {
                 for(let i=0; i<6; i++){ digits[i].innerText = n[i]; }
             }
 
-            if (currentMode === 'SW') {
-                if (swRunning) mainDisplay.classList.add('running-text');
-                if (!swRunning && (inputs['SW'].h || inputs['SW'].m || inputs['SW'].s)) {
-                    mainDisplay.innerText = formatInputToDisplay('SW') + '00';
-                } else {
-                    mainDisplay.innerText = formatSW(swElapsedMs);
-                }
-            } else if (currentMode === 'TC') {
-                mainDisplay.innerText = formatInputToDisplay('TC') || "0";
-            } else if (currentMode === 'CALC') {
-                if (!inputs['CALC'].h && !inputs['CALC'].m && !inputs['CALC'].s) {
-                    mainDisplay.innerText = isWaitingNewInput ? formatTime(memorySeconds) : (isDetermined ? formatTime(memorySeconds) : "0");
-                } else { mainDisplay.innerText = formatInputToDisplay('CALC'); }
-            }
+            if (currentMode === 'SW') 
+{
+    if (swRunning) mainDisplay.classList.add('running-text');
+
+    if (!swRunning && (inputs['SW'].h || inputs['SW'].m || inputs['SW'].s)) {
+
+        if (parseInt(inputs['SW'].h || 0) > 0) {
+            mainDisplay.innerText = formatInputToDisplay('SW');
+        } else {
+            mainDisplay.innerText = formatInputToDisplay('SW') + '00';
         }
 
-        function pressNum(n) {
-            if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
-            if (currentMode === 'CALC') {
-                if (isDetermined) { memorySeconds = 0; clearModeInput('CALC'); isDetermined = false; }
-                if (isWaitingNewInput) { clearModeInput('CALC'); isWaitingNewInput = false; }
-            }
-            let target = inputs[currentMode];
-            let activeStr = (target.h + target.m.padStart(target.h?2:0,'0') + target.s.padStart((target.m||target.h)?2:0,'0'));
-            if (activeStr.length >= 6) return;
-            let nextActive = (activeStr === "0" ? "" : activeStr) + n;
-            target.s = nextActive.slice(-2);
-            target.m = nextActive.length > 2 ? nextActive.slice(-4, -2) : "";
-            target.h = nextActive.length > 4 ? nextActive.slice(-6, -4) : "";
-            updateDisplay();
+    } else {
+        mainDisplay.innerText = formatSW(swElapsedMs);
+    }
+}
+ else if (currentMode === 'TC') {
+    mainDisplay.innerText = formatInputToDisplay('TC') || "0";
+
+    if (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s) {
+        mainDisplay.style.color = "#C9A227";
+    }
+} else if (currentMode === 'CALC') {
+    if (!inputs['CALC'].h && !inputs['CALC'].m && !inputs['CALC'].s) {
+        mainDisplay.innerText = isWaitingNewInput ? formatTime(memorySeconds) : (isDetermined ? formatTime(memorySeconds) : "0");
+    } else {
+        mainDisplay.innerText = formatInputToDisplay('CALC');
+    }
+}
+
+if (upperView === 'tc') {
+    tcDisplay.style.color = "#C9A227";
+} else {
+    tcDisplay.style.color = "";
+}
         }
 
-        function formatInputToDisplay(mode) {
-            let target = inputs[mode];
-            if (!target.h && !target.m && !target.s) return "";
-            let res = "";
-            if (target.h) res += target.h + ":";
-            if (target.m || target.h) res += (target.h ? target.m.padStart(2, '0') : (target.m || "0")) + "'";
-            res += (target.m || target.h ? target.s.padStart(2, '0') : (target.s || "0")) + '"';
-            return res;
-        }
+       function pressNum(n) {
+    if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
+
+    if (currentMode === 'CALC') {
+        if (isDetermined) { memorySeconds = 0; clearModeInput('CALC'); isDetermined = false; }
+        if (isWaitingNewInput) { clearModeInput('CALC'); isWaitingNewInput = false; }
+    }
+
+    let target = inputs[currentMode];
+
+    target.s = (target.s || "") + n;
+           target.isSeqMode = target.s.length >= 3;
+
+    updateDisplay();
+}
+       function formatInputToDisplay(mode) {
+    let target = inputs[mode];
+    if (!target.h && !target.m && !target.s) return "";
+if (target.isSeqMode) {
+    let str = target.s;
+
+    let sec = str.slice(-2);
+    let min = str.slice(-4, -2);
+    let hr  = str.slice(0, -4);
+
+    let res = "";
+
+    if (hr) res += parseInt(hr) + ":";
+
+    if (min || hr) {
+        res += (min ? min.padStart(2, '0') : "00") + "'";
+    }
+
+   res += sec + '"';
+
+    return res;
+}
+    let res = "";
+
+    if (target.h) res += target.h + ":";
+
+    if (target.m || target.h)
+        res += (target.h ? (target.m ? target.m.padStart(2, '0') : "--") : (target.m || "-")) + "'";
+
+    res += (target.m || target.h
+        ? (target.s ? target.s.padStart(2, '0') : "--")
+        : (target.s || "-")) + '"';
+
+    return res;
+}
+
 
         function formatFullTime(totalSec) {
             let h = Math.floor(totalSec / 3600), m = Math.floor((totalSec % 3600) / 60), s = totalSec % 60;
             return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}'${String(s).padStart(2,'0')}"`;
         }
 
-        function formatSW(ms) {
-            let s = Math.floor(ms / 1000), dec = Math.floor((ms % 1000) / 10);
-            let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-            return (h > 0 ? h + ":" : "") + (h > 0 || m > 0 ? String(m).padStart(2,'0') + "'" : "") + String(sec).padStart(2,'0') + '"' + String(dec).padStart(2,'0');
-        }
+        function formatSW(ms) 
+{
+    let s = Math.floor(ms / 1000), dec = Math.floor((ms % 1000) / 10);
+    let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+
+    if (h > 0) {
+        return h + ":" +
+               String(m).padStart(2,'0') + "'" +
+               String(sec).padStart(2,'0') + '"';
+    }
+
+    return (m > 0 ? m + "'" : "") +
+           String(sec).padStart(2,'0') + '"' +
+           String(dec).padStart(2,'0');
+}
+
 
         function formatColonLargeSW(ms) {
             let totalSec = Math.floor(ms / 1000);
@@ -546,10 +614,28 @@ function largeScreenPressStart(e) {
             return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
-        function getSecondsFromInput(mode) {
-            let target = inputs[mode];
-            return (parseInt(target.h || 0) * 3600) + (parseInt(target.m || 0) * 60) + parseInt(target.s || 0);
-        }
+      function getSecondsFromInput(mode) {
+    let t = inputs[mode];
+
+    // 通常の単位入力がある場合はそのまま
+    if (t.h || t.m) {
+        return (parseInt(t.h || 0) * 3600)
+             + (parseInt(t.m || 0) * 60)
+             + parseInt(t.s || 0);
+    }
+
+    // ここが新ルール（ただの数字入力）
+    let str = t.s || "";
+
+    if (str === "") return 0;
+
+    // 後ろから切る
+    let sec = parseInt(str.slice(-2) || "0");
+    let min = parseInt(str.slice(-4, -2) || "0");
+    let hr  = parseInt(str.slice(0, -4) || "0");
+
+    return hr * 3600 + min * 60 + sec;
+}
 
         function clearModeInput(mode) { inputs[mode] = { h: "", m: "", s: "" }; }
 
@@ -571,14 +657,49 @@ function largeScreenPressStart(e) {
         }
 
         function confirmUnit(unit) {
-            if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
-            if (unit === 'h') { 
-                let v = getSecondsFromInput(currentMode); 
-                inputs[currentMode].h = String(v); 
-                inputs[currentMode].m = inputs[currentMode].s = ""; 
-            }
-            updateDisplay();
-        }
+    if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
+
+    let target = inputs[currentMode];
+            if (target.isSeqMode) return;
+
+    if (unit === 'h') {
+        target.h = target.s || "0";
+        target.m = "";
+        target.s = "";
+    }
+
+    if (unit === 'm') {
+        target.m = target.s || "0";
+        target.s = "";
+    }
+
+    updateDisplay();
+
+    // ここから追加（正規化）
+    let h = parseInt(target.h || 0);
+    let m = parseInt(target.m || 0);
+    let s = parseInt(target.s || 0);
+let hadS = target.s !== "";
+    if (s >= 60) {
+        m += Math.floor(s / 60);
+        s = s % 60;
+    }
+
+    if (m >= 60) {
+        h += Math.floor(m / 60);
+        m = m % 60;
+    }
+
+    target.h = h ? String(h) : "";
+    target.m = m ? String(m) : "";
+    target.s = hadS ? String(s) : "";
+clearModeInput(currentMode);
+
+inputs[currentMode].h = target.h;
+inputs[currentMode].m = target.m;
+inputs[currentMode].s = target.s;
+    updateDisplay();
+}
 
         function allClear() {
             if (currentMode === 'CALC') { memorySeconds = 0; currentOp = null; isDetermined = false; isWaitingNewInput = false; document.getElementById('op-sign').innerText = ""; }
