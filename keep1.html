@@ -487,14 +487,23 @@ function largeScreenPressStart(e) {
                 for(let i=0; i<6; i++){ digits[i].innerText = n[i]; }
             }
 
-            if (currentMode === 'SW') {
-                if (swRunning) mainDisplay.classList.add('running-text');
-                if (!swRunning && (inputs['SW'].h || inputs['SW'].m || inputs['SW'].s)) {
-                    mainDisplay.innerText = formatInputToDisplay('SW') + '00';
-                } else {
-                    mainDisplay.innerText = formatSW(swElapsedMs);
-                }
-            } else if (currentMode === 'TC') {
+            if (currentMode === 'SW') 
+{
+    if (swRunning) mainDisplay.classList.add('running-text');
+
+    if (!swRunning && (inputs['SW'].h || inputs['SW'].m || inputs['SW'].s)) {
+
+        if (parseInt(inputs['SW'].h || 0) > 0) {
+            mainDisplay.innerText = formatInputToDisplay('SW');
+        } else {
+            mainDisplay.innerText = formatInputToDisplay('SW') + '00';
+        }
+
+    } else {
+        mainDisplay.innerText = formatSW(swElapsedMs);
+    }
+}
+ else if (currentMode === 'TC') {
                 mainDisplay.innerText = formatInputToDisplay('TC') || "0";
             } else if (currentMode === 'CALC') {
                 if (!inputs['CALC'].h && !inputs['CALC'].m && !inputs['CALC'].s) {
@@ -534,11 +543,22 @@ function largeScreenPressStart(e) {
             return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}'${String(s).padStart(2,'0')}"`;
         }
 
-        function formatSW(ms) {
-            let s = Math.floor(ms / 1000), dec = Math.floor((ms % 1000) / 10);
-            let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-            return (h > 0 ? h + ":" : "") + (h > 0 || m > 0 ? String(m).padStart(2,'0') + "'" : "") + String(sec).padStart(2,'0') + '"' + String(dec).padStart(2,'0');
-        }
+        function formatSW(ms) 
+{
+    let s = Math.floor(ms / 1000), dec = Math.floor((ms % 1000) / 10);
+    let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+
+    if (h > 0) {
+        return h + ":" +
+               String(m).padStart(2,'0') + "'" +
+               String(sec).padStart(2,'0') + '"';
+    }
+
+    return (m > 0 ? m + "'" : "") +
+           String(sec).padStart(2,'0') + '"' +
+           String(dec).padStart(2,'0');
+}
+
 
         function formatColonLargeSW(ms) {
             let totalSec = Math.floor(ms / 1000);
