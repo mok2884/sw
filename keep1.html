@@ -523,18 +523,46 @@ function largeScreenPressStart(e) {
     let target = inputs[currentMode];
 
     target.s = (target.s || "") + n;
+           target.isSeqMode = target.s.length >= 3;
 
     updateDisplay();
 }
-        function formatInputToDisplay(mode) {
-            let target = inputs[mode];
-            if (!target.h && !target.m && !target.s) return "";
-            let res = "";
-            if (target.h) res += target.h + ":";
-            if (target.m || target.h) res += (target.h ? target.m.padStart(2, '0') : (target.m || "0")) + "'";
-            res += (target.m || target.h ? target.s.padStart(2, '0') : (target.s || "0")) + '"';
-            return res;
-        }
+       function formatInputToDisplay(mode) {
+    let target = inputs[mode];
+    if (!target.h && !target.m && !target.s) return "";
+if (target.isSeqMode) {
+    let str = target.s;
+
+    let sec = str.slice(-2);
+    let min = str.slice(-4, -2);
+    let hr  = str.slice(0, -4);
+
+    let res = "";
+
+    if (hr) res += parseInt(hr) + ":";
+
+    if (min || hr) {
+        res += (min ? min.padStart(2, '0') : "00") + "'";
+    }
+
+   res += sec + '"';
+
+    return res;
+}
+    let res = "";
+
+    if (target.h) res += target.h + ":";
+
+    if (target.m || target.h)
+        res += (target.h ? (target.m ? target.m.padStart(2, '0') : "--") : (target.m || "-")) + "'";
+
+    res += (target.m || target.h
+        ? (target.s ? target.s.padStart(2, '0') : "--")
+        : (target.s || "-")) + '"';
+
+    return res;
+}
+
 
         function formatFullTime(totalSec) {
             let h = Math.floor(totalSec / 3600), m = Math.floor((totalSec % 3600) / 60), s = totalSec % 60;
@@ -564,10 +592,28 @@ function largeScreenPressStart(e) {
             return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
-        function getSecondsFromInput(mode) {
-            let target = inputs[mode];
-            return (parseInt(target.h || 0) * 3600) + (parseInt(target.m || 0) * 60) + parseInt(target.s || 0);
-        }
+      function getSecondsFromInput(mode) {
+    let t = inputs[mode];
+
+    // 通常の単位入力がある場合はそのまま
+    if (t.h || t.m) {
+        return (parseInt(t.h || 0) * 3600)
+             + (parseInt(t.m || 0) * 60)
+             + parseInt(t.s || 0);
+    }
+
+    // ここが新ルール（ただの数字入力）
+    let str = t.s || "";
+
+    if (str === "") return 0;
+
+    // 後ろから切る
+    let sec = parseInt(str.slice(-2) || "0");
+    let min = parseInt(str.slice(-4, -2) || "0");
+    let hr  = parseInt(str.slice(0, -4) || "0");
+
+    return hr * 3600 + min * 60 + sec;
+}
 
         function clearModeInput(mode) { inputs[mode] = { h: "", m: "", s: "" }; }
 
@@ -592,6 +638,7 @@ function largeScreenPressStart(e) {
     if ((currentMode === 'TC' && tcRunning) || (currentMode === 'SW' && swRunning) || currentMode === 'LARGE') return;
 
     let target = inputs[currentMode];
+            if (target.isSeqMode) return;
 
     if (unit === 'h') {
         target.h = target.s || "0";
@@ -610,7 +657,7 @@ function largeScreenPressStart(e) {
     let h = parseInt(target.h || 0);
     let m = parseInt(target.m || 0);
     let s = parseInt(target.s || 0);
-
+let hadS = target.s !== "";
     if (s >= 60) {
         m += Math.floor(s / 60);
         s = s % 60;
@@ -623,7 +670,7 @@ function largeScreenPressStart(e) {
 
     target.h = h ? String(h) : "";
     target.m = m ? String(m) : "";
-    target.s = s ? String(s) : "";
+    target.s = hadS ? String(s) : "";
 clearModeInput(currentMode);
 
 inputs[currentMode].h = target.h;
