@@ -487,8 +487,7 @@ let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
 
            if (currentMode === 'TC' && !tcRunning && (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s)) {
     tcDisplay.innerText = formatFullTime(getSecondsFromInput('TC'));
-    tcDisplay.style.color = "#C9A227";
-}
+    }
 
             if (currentMode === 'LARGE') {
                 const t = formatColonLargeSW(swElapsedMs);
@@ -527,11 +526,7 @@ let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
     }
 }
 
-if (upperView === 'tc') {
-    tcDisplay.style.color = "#C9A227";
-} else {
-    tcDisplay.style.color = "";
-}
+
         }
 
        function pressNum(n) {
