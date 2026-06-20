@@ -197,7 +197,7 @@ color: #ff4500;
 padding-left: 6px;
 /* 2秒かけて、パッ、パッ、と切り替える */
     
-animation: blink 1s infinite ease-in-out;
+animation: none;
 }
 
 @keyframes blink {
@@ -491,13 +491,31 @@ let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
            if (currentMode === 'TC' && !tcRunning && (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s)) {
     tcDisplay.innerText = formatFullTime(getSecondsFromInput('TC'));
     }
+if (currentMode === 'LARGE') {
+    const t = formatColonLargeSW(swElapsedMs);
+    const digits = largeMainTime.querySelectorAll('.digit');
+    const n = t.replace(/:/g,'');
+    for(let i=0; i<6; i++){ digits[i].innerText = n[i]; }
 
-            if (currentMode === 'LARGE') {
-                const t = formatColonLargeSW(swElapsedMs);
-                const digits = largeMainTime.querySelectorAll('.digit');
-                const n = t.replace(/:/g,'');
-                for(let i=0; i<6; i++){ digits[i].innerText = n[i]; }
-            }
+    const separators = largeMainTime.querySelectorAll('.separator');
+
+    if (!swRunning) {
+        // 停止中 → 常に明るい
+        separators.forEach(s => {
+            s.style.opacity = '1';
+        });
+    } else {
+        // 秒内のミリ秒
+        const msInSec = swElapsedMs % 1000;
+
+        // 0〜500ms 明るい、それ以降は少し暗い
+        const bright = msInSec < 500;
+
+        separators.forEach(s => {
+            s.style.opacity = bright ? '1' : '0.45';
+        });
+    }
+}
 
             if (currentMode === 'SW') 
 {
