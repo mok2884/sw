@@ -471,14 +471,24 @@ function largeScreenPressStart(e) {
             updateDisplay();
         }
 
-        function updateDisplay() {
-            let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
-            tcDisplay.innerText = formatFullTime(totalTcSec);
-            mainDisplay.classList.remove('running-text');
+        function updateDisplay() {     
+let totalTcSec = tcBaseSeconds + Math.floor(tcElapsedMs / 1000);
 
-            if (currentMode === 'TC' && !tcRunning && (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s)) {
-                tcDisplay.innerText = formatFullTime(getSecondsFromInput('TC'));
-            }
+    // ① まずリセット
+    mainDisplay.style.color = "";
+    tcDisplay.style.color = "";
+
+    tcDisplay.innerText = formatFullTime(totalTcSec);
+
+    // ② そのあと色付け
+    
+
+    mainDisplay.classList.remove('running-text');
+
+           if (currentMode === 'TC' && !tcRunning && (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s)) {
+    tcDisplay.innerText = formatFullTime(getSecondsFromInput('TC'));
+    tcDisplay.style.color = "#C9A227";
+}
 
             if (currentMode === 'LARGE') {
                 const t = formatColonLargeSW(swElapsedMs);
@@ -504,12 +514,24 @@ function largeScreenPressStart(e) {
     }
 }
  else if (currentMode === 'TC') {
-                mainDisplay.innerText = formatInputToDisplay('TC') || "0";
-            } else if (currentMode === 'CALC') {
-                if (!inputs['CALC'].h && !inputs['CALC'].m && !inputs['CALC'].s) {
-                    mainDisplay.innerText = isWaitingNewInput ? formatTime(memorySeconds) : (isDetermined ? formatTime(memorySeconds) : "0");
-                } else { mainDisplay.innerText = formatInputToDisplay('CALC'); }
-            }
+    mainDisplay.innerText = formatInputToDisplay('TC') || "0";
+
+    if (inputs['TC'].h || inputs['TC'].m || inputs['TC'].s) {
+        mainDisplay.style.color = "#C9A227";
+    }
+} else if (currentMode === 'CALC') {
+    if (!inputs['CALC'].h && !inputs['CALC'].m && !inputs['CALC'].s) {
+        mainDisplay.innerText = isWaitingNewInput ? formatTime(memorySeconds) : (isDetermined ? formatTime(memorySeconds) : "0");
+    } else {
+        mainDisplay.innerText = formatInputToDisplay('CALC');
+    }
+}
+
+if (upperView === 'tc') {
+    tcDisplay.style.color = "#C9A227";
+} else {
+    tcDisplay.style.color = "";
+}
         }
 
        function pressNum(n) {
