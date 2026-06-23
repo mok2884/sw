@@ -689,7 +689,12 @@ if (target.isSeqMode) {
         target.m = target.s || "0";
         target.s = "";
     }
-
+if (unit === 's') {
+    // 時が入っていて分が未入力なら、自動で0分確定
+    if (target.h !== "" && target.m === "") {
+        target.m = "0";
+    }
+}
     updateDisplay();
 
     // ここから追加（正規化）
