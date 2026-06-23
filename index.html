@@ -559,8 +559,13 @@ if (currentMode === 'LARGE') {
     }
 
     let target = inputs[currentMode];
+if ((target.s || "").length >= 6) return;
 
+   if ((target.s || "") === "0") {
+    target.s = String(n);
+} else {
     target.s = (target.s || "") + n;
+}
            target.isSeqMode = target.s.length >= 3;
 
     updateDisplay();
@@ -580,7 +585,7 @@ if (target.isSeqMode) {
     if (hr) res += parseInt(hr) + ":";
 
     if (min || hr) {
-        res += (min ? min.padStart(2, '0') : "00") + "'";
+        res += (min ? String(parseInt(min, 10)) : "0") + "'";
     }
 
    res += sec + '"';
@@ -658,6 +663,14 @@ if (target.isSeqMode) {
         function setOp(op) {
             if (currentMode !== 'CALC') return;
             if (isWaitingNewInput) { currentOp = op; document.getElementById('op-sign').innerText = op; return; }
+if (isDetermined) {
+    currentOp = op;
+    isWaitingNewInput = true;
+    isDetermined = false;
+    document.getElementById('op-sign').innerText = op;
+    return;
+}
+            
             let v = getSecondsFromInput('CALC');
             if (currentOp === '+') memorySeconds += v; else if (currentOp === '-') memorySeconds -= v; else memorySeconds = v;
             isDetermined = false; isWaitingNewInput = true; currentOp = op;
@@ -666,6 +679,15 @@ if (target.isSeqMode) {
 
         function calculate() {
             if (currentMode !== 'CALC') return;
+            if (
+    isDetermined &&
+    !currentOp &&
+    !inputs['CALC'].h &&
+    !inputs['CALC'].m &&
+    !inputs['CALC'].s
+) {
+    return;
+}
             let v = getSecondsFromInput('CALC');
             if (currentOp === '+') memorySeconds += v; else if (currentOp === '-') memorySeconds -= v; else memorySeconds = v;
             clearModeInput('CALC'); isDetermined = true; isWaitingNewInput = false; currentOp = null;
@@ -688,7 +710,12 @@ if (target.isSeqMode) {
         target.m = target.s || "0";
         target.s = "";
     }
-
+if (unit === 's') {
+    // 時が入っていて分が未入力なら、自動で0分確定
+    if (target.h !== "" && target.m === "") {
+        target.m = "0";
+    }
+}
     updateDisplay();
 
     // ここから追加（正規化）
@@ -707,8 +734,14 @@ let hadS = target.s !== "";
     }
 
     target.h = h ? String(h) : "";
-    target.m = m ? String(m) : "";
-    target.s = hadS ? String(s) : "";
+
+if (target.m !== "" || m > 0) {
+    target.m = String(m);
+} else {
+    target.m = "";
+}
+
+target.s = hadS ? String(s) : "";
 clearModeInput(currentMode);
 
 inputs[currentMode].h = target.h;
