@@ -708,8 +708,15 @@ let hadS = target.s !== "";
     }
 
     target.h = h ? String(h) : "";
-    target.m = m ? String(m) : "";
-    target.s = hadS ? String(s) : "";
+
+// ★ 分が0でも、分ボタンで確定した値なら保持する
+if (target.m !== "") {
+    target.m = String(m);
+} else {
+    target.m = "";
+}
+
+target.s = hadS ? String(s) : "";
 clearModeInput(currentMode);
 
 inputs[currentMode].h = target.h;
