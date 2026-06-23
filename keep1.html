@@ -663,6 +663,14 @@ if (target.isSeqMode) {
         function setOp(op) {
             if (currentMode !== 'CALC') return;
             if (isWaitingNewInput) { currentOp = op; document.getElementById('op-sign').innerText = op; return; }
+if (isDetermined) {
+    currentOp = op;
+    isWaitingNewInput = true;
+    isDetermined = false;
+    document.getElementById('op-sign').innerText = op;
+    return;
+}
+            
             let v = getSecondsFromInput('CALC');
             if (currentOp === '+') memorySeconds += v; else if (currentOp === '-') memorySeconds -= v; else memorySeconds = v;
             isDetermined = false; isWaitingNewInput = true; currentOp = op;
@@ -671,6 +679,15 @@ if (target.isSeqMode) {
 
         function calculate() {
             if (currentMode !== 'CALC') return;
+            if (
+    isDetermined &&
+    !currentOp &&
+    !inputs['CALC'].h &&
+    !inputs['CALC'].m &&
+    !inputs['CALC'].s
+) {
+    return;
+}
             let v = getSecondsFromInput('CALC');
             if (currentOp === '+') memorySeconds += v; else if (currentOp === '-') memorySeconds -= v; else memorySeconds = v;
             clearModeInput('CALC'); isDetermined = true; isWaitingNewInput = false; currentOp = null;
