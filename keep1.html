@@ -714,8 +714,7 @@ let hadS = target.s !== "";
 
     target.h = h ? String(h) : "";
 
-// ★ 分が0でも、分ボタンで確定した値なら保持する
-if (target.m !== "") {
+if (target.m !== "" || m > 0) {
     target.m = String(m);
 } else {
     target.m = "";
