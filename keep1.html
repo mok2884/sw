@@ -581,7 +581,7 @@ if (target.isSeqMode) {
     if (hr) res += parseInt(hr) + ":";
 
     if (min || hr) {
-        res += (min ? min.padStart(2, '0') : "00") + "'";
+        res += (min ? String(parseInt(min, 10)) : "0") + "'";
     }
 
    res += sec + '"';
