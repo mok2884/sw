@@ -561,7 +561,11 @@ if (currentMode === 'LARGE') {
     let target = inputs[currentMode];
 if ((target.s || "").length >= 6) return;
 
+   if ((target.s || "") === "0") {
+    target.s = String(n);
+} else {
     target.s = (target.s || "") + n;
+}
            target.isSeqMode = target.s.length >= 3;
 
     updateDisplay();
