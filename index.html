@@ -511,9 +511,24 @@ if (currentMode === 'LARGE') {
         // 0〜500ms 明るい、それ以降は少し暗い
         const bright = msInSec < 500;
 
+        //separators.forEach(s => {
+          //  s.style.opacity = bright ? '1' : '0.20';
+        //});
         separators.forEach(s => {
-            s.style.opacity = bright ? '1' : '0.20';
-        });
+    if (bright) {
+        s.style.opacity = '1';
+
+        // ✅ 細くてシャープなネオン
+        s.style.textShadow = '0 0 4px #ff0000, 0 0 6px #ff0000';
+        
+    } else {
+        s.style.opacity = '0.20';
+
+        // ✅ 消灯時は影なし
+        s.style.textShadow = '';
+    }
+});
+``
     }
 }
 
