@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Time Pro - Final Production</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #B2DFDB; 
+            --lcd-bg: #c4dbd8;
+            --text-standard: #004D40;
+            --alert-yellow: #FFEB3B;
+            --alert-red: #FF1744;
+            --accent-red: #D32F2F;
+        }
+
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; position: fixed;
+            background-color: var(--bg-base);
+            user-select: none;
+        }
+
+        #bg-wipe-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; background: transparent; }
+
+        body { font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; z-index: 2; }
+
+        .console { 
+            width: 95%; max-width: 480px; height: 42%; 
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            box-sizing: border-box; position: relative; z-index: 10;
+        }
+
+        .top-row { display: grid; grid-template-columns: 1fr 110px; align-items: flex-end; gap: 20px; }
+
+        #reset-btn { 
+            height: 45px; background: linear-gradient(to bottom, #26A69A, #00897B); 
+            border: none; border-radius: 12px; color: white; font-weight: bold; 
+            box-shadow: 0 4px #004D40; cursor: pointer; transition: transform 0.05s, box-shadow 0.05s;
+            font-size: 1.2rem; white-space: nowrap; padding: 0 10px;
+        }
+        #reset-btn:active { transform: translateY(3px); box-shadow: 0 1px #004D40; }
+
+        #start-stop-btn { 
+            height: 85px; background: linear-gradient(to bottom, #26A69A, #009688); 
+            border: none; border-radius: 20px; color: white; font-size: 1.1rem; font-weight: bold; 
+            box-shadow: 0 6px #00796B; cursor: pointer; transition: transform 0.05s, box-shadow 0.05s;
+        }
+        #start-stop-btn:active { transform: translateY(4px); box-shadow: 0 2px #00796B; }
+        
+        @keyframes pulse-red-alert {
+            0% { background: linear-gradient(to bottom, #26A69A, #00897B); }
+            10% { background: linear-gradient(to bottom, #FF5252, #FF1744); }
+            50% { background: linear-gradient(to bottom, #FF5252, #FF1744); }
+            60% { background: linear-gradient(to bottom, #26A69A, #00897B); }
+            100% { background: linear-gradient(to bottom, #26A69A, #00897B); }
+        }
+
+        @keyframes pulse-red-alert-start {
+            0% { background: linear-gradient(to bottom, #26A69A, #009688); }
+            10% { background: linear-gradient(to bottom, #FF5252, #FF1744); }
+            50% { background: linear-gradient(to bottom, #FF5252, #FF1744); }
+            60% { background: linear-gradient(to bottom, #26A69A, #009688); }
+            100% { background: linear-gradient(to bottom, #26A69A, #009688); }
+        }
+
+        @keyframes bounce { 
+            0%, 100% { transform: scale(1); } 
+            25% { transform: scale(1.15); } 
+            50% { transform: scale(1); } 
+        }
+
+        .btn-alert-active-reset { animation: pulse-red-alert 1.2s infinite linear, bounce 1.2s infinite linear; }
+        .btn-alert-active-start { animation: pulse-red-alert-start 1.2s infinite linear; }
+
+        #display-panel { 
+            background-color: var(--lcd-bg); padding: 15px 20px; border-radius: 25px; 
+            border: 10px solid #75bdb3; box-shadow: inset 8px 8px 16px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.1); 
+            display: flex; flex-direction: column; flex-grow: 1; justify-content: center;
+            transition: transform 0.05s; cursor: pointer;
+        }
+        #display-panel:active { transform: scale(0.98); }
+
+        .label { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; color: #00796B; opacity: 0.8; margin-bottom: 2px; }
+        .clock-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        #clock-val { color: var(--text-standard); font-size: 2rem; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1; }
+        #main-time { color: var(--text-standard); font-size: 4.2rem; font-variant-numeric: tabular-nums; line-height: 1; text-align: right; }
+        .running-text { color: var(--accent-red) !important; }
+        .divider { border: none; border-top: 2px solid rgba(0, 77, 64, 0.1); margin: 8px 0; }
+        .video-space { flex-grow: 1; width: 100%; }
+
+        #ura-text-container { display: inline-flex; justify-content: center; align-items: center; width: 200px; height: 2.8rem; }
+        #ura-text { font-family: sans-serif; font-size: 1.8rem; font-weight: bold; color: var(--alert-red); white-space: nowrap; display: inline-block; opacity: 0; transition: transform 0.01s linear, opacity 0.1s linear; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-wipe-layer"></div>
+
+    <div class="console">
+        <div class="top-row">
+            <button id="reset-btn" onpointerdown="handleReset(event)">RESET</button>
+            <button id="start-stop-btn" onpointerdown="handleStartStop(event)">START<br>STOP</button>
+        </div>
+
+        <div id="display-panel" onpointerdown="handleStartStop(event)">
+            <div class="label">REAL-TIME CLOCK</div>
+            <div class="clock-row">
+                <div id="clock-val">00:00:00</div>
+                <div id="ura-text-container"><div id="ura-text"></div></div>
+            </div>
+            <div class="divider"></div>
+            <div class="label" style="margin-bottom: 2px;">STOPWATCH</div>
+            <div id="main-time">00'00"00</div>
+        </div>
+    </div>
+    
+    <div class="video-space"></div>
+
+    <script>
+        let swRunning = false, swStartTime = 0, swElapsedMs = 0, swInterval = null;
+        const mainDisplay = document.getElementById('main-time'), clockDisplay = document.getElementById('clock-val');
+        const bgLayer = document.getElementById('bg-wipe-layer'), uraText = document.getElementById('ura-text');
+        const resetBtn = document.getElementById('reset-btn'), startStopBtn = document.getElementById('start-stop-btn');
+
+        // Wake Lock 関連の処理
+        let wakeLock = null;
+        const requestWakeLock = async () => {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {}
+        };
+
+        // 初回操作時に Wake Lock を有効にする
+        document.body.addEventListener('pointerdown', () => { 
+            if (!wakeLock) requestWakeLock(); 
+        }, { once: true });
+
+        document.addEventListener('visibilitychange', () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock();
+        });
+
+        function handleStartStop(e) {
+            if (e) e.preventDefault();
+            if (!swRunning) {
+                swRunning = true; swStartTime = Date.now() - swElapsedMs;
+                swInterval = setInterval(updateSW, 10); mainDisplay.classList.add('running-text');
+            } else {
+                swRunning = false; clearInterval(swInterval);
+                mainDisplay.classList.remove('running-text'); clearAlerts();
+            }
+        }
+
+        function handleReset(e) {
+            if (e) e.preventDefault();
+            swRunning = false; clearInterval(swInterval); swElapsedMs = 0;
+            mainDisplay.innerText = "00'00\"00"; mainDisplay.classList.remove('running-text'); clearAlerts();
+        }
+
+        function updateSW() {
+            swElapsedMs = Date.now() - swStartTime;
+            let totalSec = Math.floor(swElapsedMs / 1000), subSecMs = swElapsedMs % 1000;
+            let activeColor = null, isRedAlert = false, showUraText = false, targetText = "";
+
+            if (totalSec >= 65 && totalSec < 72) { activeColor = 'var(--alert-red)'; isRedAlert = true; showUraText = true; targetText = "～裏しゃべり～"; }
+            else if (totalSec >= 100 && totalSec < 107) { activeColor = (totalSec < 105) ? 'var(--alert-yellow)' : 'var(--alert-red)'; isRedAlert = (totalSec >= 105); showUraText = true; targetText = "～ポーズ～"; }
+            else if (totalSec >= 57 && totalSec < 65) { activeColor = 'var(--alert-yellow)'; }
+            else if (totalSec >= 107 && totalSec < 110) { activeColor = 'var(--alert-red)'; isRedAlert = true; }
+
+            if (activeColor) {
+                let progress = 0; const baseColor = 'var(--bg-base)', edgeBlur = 15;
+                if (!isRedAlert) {
+                    if (subSecMs < 350) { let pos = 150 - ((subSecMs / 350) * 200); bgLayer.style.background = `linear-gradient(135deg, ${baseColor} ${pos}%, ${activeColor} ${pos + edgeBlur}%)`; }
+                    else if (subSecMs < 700) { let pos = 150 - (((subSecMs - 350) / 350) * 200); bgLayer.style.background = `linear-gradient(135deg, ${activeColor} ${pos}%, ${baseColor} ${pos + edgeBlur}%)`; }
+                    else bgLayer.style.background = 'transparent';
+                } else {
+                    if (subSecMs < 300) { let pos = 150 - ((subSecMs / 300) * 200); bgLayer.style.background = `linear-gradient(135deg, ${baseColor} ${pos}%, ${activeColor} ${pos + edgeBlur}%)`; }
+                    else if (subSecMs < 600) { let pos = 150 - (((subSecMs - 300) / 300) * 200); bgLayer.style.background = `linear-gradient(135deg, ${activeColor} ${pos}%, ${baseColor} ${pos + edgeBlur}%)`; }
+                    else bgLayer.style.background = 'transparent';
+                }
+            } else bgLayer.style.background = 'transparent';
+
+            if (showUraText) {
+                if (uraText.innerText !== targetText) uraText.innerText = targetText;
+                uraText.style.opacity = "1";
+                if (subSecMs < 300) uraText.style.transform = `scale(${1.0 + ((subSecMs / 300) * 0.4)})`;
+                else if (subSecMs < 600) uraText.style.transform = `scale(${1.4 - (((subSecMs - 300) / 300) * 0.4)})`;
+                else uraText.style.transform = 'scale(1.0)';
+            } else { uraText.style.opacity = "0"; uraText.style.transform = 'scale(1.0)'; }
+
+            mainDisplay.innerText = `${String(Math.floor(totalSec/60)).padStart(2,'0')}'${String(totalSec%60).padStart(2,'0')}"${String(Math.floor((swElapsedMs%1000)/10)).padStart(2,'0')}`;
+        }
+
+        function clearAlerts() { bgLayer.style.background = 'transparent'; uraText.style.opacity = "0"; uraText.style.transform = 'scale(1.0)'; }
+
+        function updateClock() {
+            const now = new Date();
+            clockDisplay.innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            
+            const totalSecondsNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            
+            const isInRange1 = (totalSecondsNow >= (0 * 3600 + 25 * 60 + 30) && totalSecondsNow <= (0 * 3600 + 26 * 60 + 2));
+            const isInRange2 = (totalSecondsNow >= (18 * 3600 + 2 * 60 + 30) && totalSecondsNow <= (18 * 3600 + 3 * 60 + 2));
+            const isInRange3 = (totalSecondsNow >= (18 * 3600 + 17 * 60 + 30) && totalSecondsNow <= (18 * 3600 + 18 * 60 + 2));
+            const isInRange4 = (totalSecondsNow >= (18 * 3600 + 22 * 60 + 30) && totalSecondsNow <= (18 * 3600 + 23 * 60 + 2));
+
+            if (isInRange1 || isInRange2 || isInRange3 || isInRange4) {
+                if (!resetBtn.classList.contains('btn-alert-active-reset')) {
+                    resetBtn.classList.add('btn-alert-active-reset'); startStopBtn.classList.add('btn-alert-active-start');
+                }
+                resetBtn.innerText = "！！ポーズ！！裏しゃべり！！";
+            } else {
+                if (resetBtn.classList.contains('btn-alert-active-reset')) {
+                    resetBtn.classList.remove('btn-alert-active-reset'); startStopBtn.classList.remove('btn-alert-active-start');
+                }
+                resetBtn.innerText = "RESET";
+            }
+        }
+        setInterval(updateClock, 200);
+        updateClock();
+    </script>
+</body>
+</html>
