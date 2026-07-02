@@ -515,17 +515,15 @@ if (currentMode === 'LARGE') {
           //  s.style.opacity = bright ? '1' : '0.20';
         //});
         separators.forEach(s => {
-    if (bright) {
+   if (bright) {
         s.style.opacity = '1';
         
-        // 文字色は変えない（そのまま）
-        // 影は「薄く（rgbaの0.3）」「広めに（10px）」設定
-        s.style.textShadow = '0 0 10px rgba(255, 0, 0, 0.3)';
+        // 濃度を0.3から0.6くらいに上げてみて！
+        // それと、少し強めの影を重ねることで「広がり」を強調できるよ
+        s.style.textShadow = '0 0 5px rgba(255, 0, 0, 0.6), 0 0 15px rgba(255, 0, 0, 0.3)';
          
     } else {
         s.style.opacity = '0.20';
-        
-        // 暗い時は影なし
         s.style.textShadow = 'none';
     }
 });
