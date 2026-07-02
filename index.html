@@ -517,15 +517,16 @@ if (currentMode === 'LARGE') {
         separators.forEach(s => {
     if (bright) {
         s.style.opacity = '1';
-
-        // ✅ 細くてシャープなネオン
-        s.style.textShadow = '0 0 4px #ff0000, 0 0 6px #ff0000';
         
+        // 文字色は変えない（そのまま）
+        // 影は「薄く（rgbaの0.3）」「広めに（10px）」設定
+        s.style.textShadow = '0 0 10px rgba(255, 0, 0, 0.3)';
+         
     } else {
         s.style.opacity = '0.20';
-
-        // ✅ 消灯時は影なし
-        s.style.textShadow = '';
+        
+        // 暗い時は影なし
+        s.style.textShadow = 'none';
     }
 });
 ``
