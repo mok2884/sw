@@ -514,19 +514,25 @@ if (currentMode === 'LARGE') {
         //separators.forEach(s => {
           //  s.style.opacity = bright ? '1' : '0.20';
         //});
-        separators.forEach(s => {
-    if (bright) {
-        s.style.opacity = '1';
+       separators.forEach(s => {
+            // 💡 影を全部一旦リセットするよ（これが安全装置！）
+            s.style.textShadow = 'none';
 
-        // ✅ 細くてシャープなネオン
-       s.style.textShadow = '0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.5)'; 
-} else {
-        s.style.opacity = '0.20';
-
-        // ✅ 消灯時は影なし
-        s.style.textShadow = '';
-    }
-});
+            if (!swRunning) {
+                // 【停止中】→ 影なし、普通の明るい赤
+                s.style.opacity = '1';
+            } else {
+                // 【走行中】
+                if (bright) {
+                    // 【明】→ 影あり、シャープなネオン
+                    s.style.opacity = '1';
+                    s.style.textShadow = '0 0 4px #ff0000, 0 0 6px #ff0000';
+                } else {
+                    // 【暗】→ 影なし、少し暗く
+                    s.style.opacity = '0.20';
+                }
+            }
+        });
 ``
     }
 }
