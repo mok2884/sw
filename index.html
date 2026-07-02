@@ -515,16 +515,17 @@ if (currentMode === 'LARGE') {
           //  s.style.opacity = bright ? '1' : '0.20';
         //});
         separators.forEach(s => {
-   if (bright) {
+    if (bright) {
         s.style.opacity = '1';
+
+        // ✅ 細くてシャープなネオン
+        s.style.textShadow = '0 0 4px #ff0000, 0 0 6px #ff0000';
         
-        // 濃度を0.3から0.6くらいに上げてみて！
-        // それと、少し強めの影を重ねることで「広がり」を強調できるよ
-        s.style.textShadow = '0 0 5px rgba(255, 0, 0, 0.6), 0 0 15px rgba(255, 0, 0, 0.3)';
-         
     } else {
         s.style.opacity = '0.20';
-        s.style.textShadow = 'none';
+
+        // ✅ 消灯時は影なし
+        s.style.textShadow = '';
     }
 });
 ``
