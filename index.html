@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Time Pro - Professional Independent Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
@@ -27,11 +27,16 @@
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden; position: fixed;
+            /* ページそのものの地の色。ナビバーやステータスバーの裏にも見える */
+            background-color: #B2DFDB;
 touch-action: manipulation;
         }
 
         body {
-
+            box-sizing: border-box;
+            padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+                     env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+            height: var(--stable-h, 100%);
             color: #333; font-family: 'Inter', sans-serif;
             display: flex; align-items: center; justify-content: center;
             user-select: none; -webkit-user-select: none;
@@ -43,7 +48,7 @@ touch-action: manipulation;
         #bg-board {
             content: "";
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            top: 0; left: 0; width: 100%; height: var(--stable-h, 100%);
             background: linear-gradient(135deg, #B2DFDB 0%, #B2DFDB 30%, #E0F2F1 50%, #B2DFDB 70%, #B2DFDB 100%);
             z-index: -1;
         }
@@ -154,7 +159,7 @@ touch-action: manipulation;
         /* 巨大画面モード専用のスタイル */
         #large-sw-overlay {
             position: fixed; top: -2px;
-    left: -2px; width: 100%; height: 100%;
+    left: -2px; width: calc(100% + 4px); height: calc(var(--stable-h, 100%) + 4px);
             background-color: #000000; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-sizing: border-box; cursor: pointer; transition: background-color 0.08s ease;
@@ -217,12 +222,12 @@ font-size: 2.2rem;
     width: 100%;           /* 幅を確保してセンター寄せを確実にする */
 }
         #large-reset-btn {
-            position: absolute; bottom: 25px; right: 25px; width: 70px; height: 35px; background: rgba(255, 255, 255, 0.1);
+            position: absolute; bottom: calc(25px + env(safe-area-inset-bottom, 0px)); right: calc(25px + env(safe-area-inset-right, 0px)); width: 70px; height: 35px; background: rgba(255, 255, 255, 0.1);
             border: 1.5px solid #707070; border-radius: 8px; color: #888888; font-size: 0.75rem; font-weight: bold;
             display: flex; align-items: center; justify-content: center; z-index: 110; cursor: pointer;
             transition: transform 0.05s, background-color 0.05s;
         }
-        .large-lever-positioner { position: absolute; top: 25px; left: 25px; width: 80px; height: 80px; z-index: 120; }
+        .large-lever-positioner { position: absolute; top: calc(25px + env(safe-area-inset-top, 0px)); left: calc(25px + env(safe-area-inset-left, 0px)); width: 80px; height: 80px; z-index: 120; }
     </style>
 </head>
 <body>
@@ -401,6 +406,8 @@ font-size: 2.2rem;
 document.getElementById('bg-board').style.background = '#000000';
 document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
                 document.body.style.background = '#000000';
+                document.documentElement.style.background = '#000000';
+                enterFullscreen();
                 normalConsole.classList.add('hidden');
                 largeOverlay.classList.remove('hidden');
                 modeSelector.classList.add('large-dark-lever');
@@ -413,6 +420,8 @@ document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000
 document.getElementById('bg-board').style.background = '';
 document.querySelector('meta[name="theme-color"]').setAttribute('content', '#B2DFDB');
                 document.body.style.background = '';
+                document.documentElement.style.background = '';
+                exitFullscreen();
                 normalConsole.classList.remove('hidden');
                 largeOverlay.classList.add('hidden');
                 modeSelector.classList.remove('large-dark-lever');
@@ -822,13 +831,28 @@ inputs[currentMode].s = target.s;
         }
         setInterval(updateRealTime, 1000);
         updateRealTime();
-        // 📱 計算機コンソールを画面の90%に自動で収める関数
+        // ===== 画面の安全領域（ノッチ・ナビバーなど）を取得 =====
+        const insetProbe = document.createElement('div');
+        insetProbe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;' +
+            'padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);' +
+            'padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);';
+        document.body.appendChild(insetProbe);
+        function getInsets() {
+            const cs = getComputedStyle(insetProbe);
+            return {
+                top: parseFloat(cs.paddingTop) || 0, bottom: parseFloat(cs.paddingBottom) || 0,
+                left: parseFloat(cs.paddingLeft) || 0, right: parseFloat(cs.paddingRight) || 0,
+            };
+        }
+
+        // 📱 計算機コンソールを画面に自動で収める関数（安全領域の内側に収める）
         function autoScaleConsole() {
             const baseWidth = 476;
             const baseHeight = 840;
+            const ins = getInsets();
 
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
+            const windowWidth = window.innerWidth - ins.left - ins.right;
+            const windowHeight = stableHeight - ins.top - ins.bottom;
 
             const targetWidth = windowWidth * 0.99;
             const targetHeight = windowHeight * 0.97;
@@ -844,16 +868,14 @@ inputs[currentMode].s = target.s;
             }
         }
 
-        window.addEventListener('load', autoScaleConsole);
-        window.addEventListener('resize', autoScaleConsole);
-
 // 🔄 巨大ストップウォッチ（90度回転）を画面に収める関数
         function autoScaleLargeTimer() {
             const baseWidth = 800;
             const baseHeight = 450;
+            const ins = getInsets();
 
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
+            const windowWidth = window.innerWidth - ins.left - ins.right;
+            const windowHeight = stableHeight - ins.top - ins.bottom;
 
             const targetWidth = windowHeight * 0.80;
             const targetHeight = windowWidth * 0.95;
@@ -870,8 +892,48 @@ inputs[currentMode].s = target.s;
             }
         }
 
-        window.addEventListener('load', autoScaleLargeTimer);
-        window.addEventListener('resize', autoScaleLargeTimer);
+        // ===== ガタつき防止 =====
+        // バーの出し入れで「高さだけ」変わった時は計算し直さない。
+        // 計算し直すのは、幅が変わった時（回転など）と、全画面の切り替え時だけ。
+        let stableHeight = window.innerHeight;
+        let lastWidth = -1;
+        let lastFullscreen = null;
+
+        function relayout(force) {
+            const w = window.innerWidth;
+            const fs = !!document.fullscreenElement;
+            if (!force && w === lastWidth && fs === lastFullscreen) return;
+            lastWidth = w;
+            lastFullscreen = fs;
+            stableHeight = window.innerHeight;
+            document.documentElement.style.setProperty('--stable-h', stableHeight + 'px');
+            autoScaleConsole();
+            autoScaleLargeTimer();
+        }
+
+        window.addEventListener('load', () => relayout(true));
+        window.addEventListener('resize', () => relayout(false));
+        window.addEventListener('orientationchange', () => setTimeout(() => relayout(true), 300));
+        // 全画面の切り替え直後はサイズが確定するまで少し待ってから計算
+        document.addEventListener('fullscreenchange', () => {
+            relayout(true);
+            setTimeout(() => relayout(true), 250);
+        });
+
+        // ===== 7セグ表示の時だけ全画面（ステータスバー・ナビバーを隠す） =====
+        // ※ブラウザのルールで、タップ操作の中からしか全画面にできない（レバー操作でOK）
+        // ※iPhone は非対応なので何もしない
+        function enterFullscreen() {
+            const el = document.documentElement;
+            if (document.fullscreenElement || !document.fullscreenEnabled || !el.requestFullscreen) return;
+            el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+        }
+        function exitFullscreen() {
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+        relayout(true);
         setMode('CALC');
 
         // WakeLock等周辺ロジック維持
